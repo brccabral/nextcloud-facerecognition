@@ -8,25 +8,27 @@ RUN apt-get update \
  && apt-get clean
 
 ARG DLIB_TAG=${DLIB_TAG:-v19.19}
-RUN git clone https://github.com/davisking/dlib.git \
+RUN cd \
+ && git clone https://github.com/davisking/dlib.git \
  && cd dlib \
  && git checkout $DLIB_TAG -b $DLIB_TAG \
  && cd dlib \
  && mkdir build \
  && cd build \
  && cmake -DBUILD_SHARED_LIBS=ON .. \
- && make \
+ && make -j10 \
  && make install
 
 ARG PDLIB_BRANCH=${PDLIB_BRANCH:-master}
-RUN git clone https://github.com/goodspb/pdlib.git /usr/src/php/ext/pdlib \
- && cd /usr/src/php/ext/pdlib \
+RUN cd \
+ && git clone https://github.com/goodspb/pdlib.git \
+ && cd pdlib \
  && git checkout $PDLIB_BRANCH \
  && phpize \
  && cat configure | sed 's/std=c++11/std=c++14/g' > configure_new \
  && chmod +x configure_new \
  && ./configure_new \
- && make \
+ && make -j10 \
  && make install
 RUN docker-php-ext-enable pdlib
 
